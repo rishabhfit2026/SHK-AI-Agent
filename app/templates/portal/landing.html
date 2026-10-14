@@ -1,0 +1,31 @@
+{% extends "portal/base.html" %}
+{% block page %}
+<section class="one-page"><div class="wrap one-grid">
+  <div>
+    <span class="eyebrow">Integrated steel plant · Siltara, Raipur · Since 2003</span>
+    <h1>Get today's rate in a minute</h1>
+    <p class="lead">Tell our assistant the product, quantity and delivery city. You'll get a delivered price and a PDF quotation on the spot, or our sales team will confirm it shortly.</p>
+    <div class="facts"><span>Listed on NSE Emerge</span><span>Mill test certificate with every dispatch</span><span>Billets to IS 2830</span></div>
+    <p class="links"><a href="/portal/login">Existing customer? Log in</a> to track orders, download test certificates and see your account. New buyer? <a href="/portal/register">Register</a> to keep your quotes in one place.</p>
+    <div class="plist">{% for p in products %}
+      <button class="pcard{{ ' soon' if p.status != 'live' }}" data-ask="{{ ('What is today\'s rate for ' ~ p.name ~ '?') if p.status == 'live' else ('I\'m interested in ' ~ p.name ~ '. Please contact me about trial lots.') }}">
+        <h3>{{ p.name }}{% if p.status != "live" %} <span class="soon-tag">coming FY 2026-27</span>{% endif %}</h3>
+        <p>{{ p.spec[:150] }}{% if p.spec|length > 150 %}…{% endif %}</p>
+        <span class="ask">{{ "Ask for today's rate →" if p.status == "live" else "Register interest →" }}</span>
+      </button>{% endfor %}</div>
+  </div>
+  <div class="chat-card" id="chat">
+    <div class="chat-head"><div class="avatar">SHK</div><div><b>SHK Sales Desk</b><small>Online · replies in seconds</small></div></div>
+    <div class="chips">
+      <button class="chip" data-ask="What is today's rate for sponge iron lumps?">Sponge iron rate</button>
+      <button class="chip" data-ask="Which billet grades and sizes do you supply?">Billet grades</button>
+      <button class="chip" data-ask="What sizes of steel shots and grits do you make?">Steel shot sizes</button>
+    </div>
+    <div id="chatbox" data-mode="web" data-greeting="Namaste! Which product do you need, how many MT, and where should we deliver? I'll get you today's rate."></div>
+    <div class="chat-note">AI assistant. Prices are confirmed by our sales team for large or credit orders.</div>
+  </div>
+</div>
+<div class="wrap" style="padding-bottom:40px"><div class="cta-band"><div><h2>Need material this week?</h2><p>Get today's delivered rate and a quotation PDF in about a minute.</p></div>
+  <a href="#chat" class="btn btn-outline" data-ask="">Chat with sales desk</a></div></div>
+</section>
+{% endblock %}

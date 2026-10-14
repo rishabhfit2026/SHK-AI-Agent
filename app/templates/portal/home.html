@@ -1,0 +1,15 @@
+{% extends "portal/base.html" %}{% block body %}
+<div class="page-title"><div><h1>Namaste{% if user.name %}, {{ user.name.split(" ")[0] }}{% endif %}</h1><p>{{ user.company or user.email }} · Customer portal</p></div>
+<a class="btn btn-primary btn-sm" href="/portal/account">Upload payment proof</a></div>
+<div class="portal-grid">
+<div class="chat-card" id="chat" style="box-shadow:var(--shadow)"><div class="chat-head"><div class="avatar">SHK</div><div><b>SHK Sales Desk</b><small>Online · rates, orders, certificates, statement</small></div></div>
+<div class="chips"><button class="chip" data-ask="What is today's rate for sponge iron lumps?">Today's rate</button><button class="chip" data-ask="Where is my latest order?">Where is my order?</button><button class="chip" data-ask="Please send the test certificate for my latest dispatch.">Test certificate</button><button class="chip" data-ask="What is my outstanding amount?">My statement</button></div>
+<div id="chatbox" data-mode="portal" style="height:520px" data-greeting="How can I help today? Ask for today's rate, your order status, a test certificate, or your account statement."></div></div>
+<div>
+{% if not user.customer_id %}<div class="card"><b>Your account isn't linked to a customer account yet.</b> You can get rates and quotes now. Once you order (or our team confirms you're an existing customer), your orders, dispatches and invoices will appear here.</div>{% endif %}
+{% if user.customer_id %}<div class="kpis"><div class="kpi"><span>Outstanding</span><b><a href="/portal/account">{{ outstanding|inr }}</a></b></div>
+<div class="kpi"><span>Unread messages</span><b><a href="/portal/inbox">{{ unread }}</a></b></div></div>
+<div class="card"><h2>Recent orders</h2><table>{% for o in orders %}<tr><td>{{o.number}}</td><td>{{o.item_text}}</td><td class="n">{{o.qty_mt}} MT</td><td><span class="tag">{{ STATUS_TEXT.get(o.status, o.status) }}</span></td></tr>{% else %}<tr><td class="muted">No orders yet.</td></tr>{% endfor %}</table><p><a href="/portal/orders">All orders &amp; dispatches →</a></p></div>{% endif %}
+<div class="card"><h2>Latest quotes</h2><table>{% for q in quotes %}<tr><td>{{q.number}}</td><td>{{ q.created_at.strftime("%d %b") }}</td><td class="n">{{ q.grand_total|inr }}</td><td><span class="tag">{{ q.status.replace("_"," ") }}</span></td></tr>{% else %}<tr><td class="muted">Ask in the chat for today's rate.</td></tr>{% endfor %}</table><p><a href="/portal/quotes">All quotes →</a></p></div>
+</div></div>
+{% endblock %}

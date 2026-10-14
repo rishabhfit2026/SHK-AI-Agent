@@ -1,0 +1,8 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Ask AI <span class="muted" style="font-size:14px">internal analyst over your CRM data</span></h1>
+<div class="card">{% set messages = conv.messages if conv else [] %}{% include "staff/_chat.html" %}
+<form method="post" action="/staff/ask" class="row" style="margin-top:10px" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='Thinking…'">
+<input name="question" placeholder="e.g. Which billet customers have gone quiet and how much do they owe us?" required autofocus style="flex:1;min-width:260px"><button>Ask</button></form>
+<form method="post" action="/staff/ask/reset" style="margin-top:6px"><button class="sec">New conversation</button></form></div>
+<p class="muted">Try: "Who are the top 5 overdue accounts and what should accounts do today?" · "Summarise the grinding media ball pipeline" · "Draft a reorder message for Urla Ispat"</p>
+{% endblock %}

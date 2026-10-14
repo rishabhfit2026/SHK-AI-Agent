@@ -1,0 +1,2 @@
+<div class="chat" id="chat">{% for m in messages %}<div class="msg {{m.direction}}">{{m.body}}<small>{{m.author}} · {{ m.created_at.strftime("%d-%b %H:%M") }}</small></div>{% else %}<span class="muted">No messages yet.</span>{% endfor %}</div>
+<script>var c=document.getElementById('chat');c.scrollTop=c.scrollHeight;</script>

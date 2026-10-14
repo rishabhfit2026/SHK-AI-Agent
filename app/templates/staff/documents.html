@@ -1,0 +1,14 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Documents · payment proofs &amp; invoices</h1>
+<p class="muted">Upload a bank slip, NEFT/RTGS/UPI screenshot, cheque photo or an invoice (PDF or photo). Nemotron OCR reads it, the AI fills in the fields, and you check them against the document before anything is saved. Customers can also upload payment proofs from their portal.{% if not settings.ocr_enabled %} <b>OCR is not configured (NEMOTRON_OCR_URL), so you'll type the fields in by hand.</b>{% endif %}</p>
+<div class="card"><h2>Upload</h2><form method="post" action="/staff/documents/upload" enctype="multipart/form-data" class="row">
+<select name="kind"><option value="payment">Payment proof</option><option value="invoice">Invoice</option></select>
+<select name="customer_id"><option value="0">Customer: detect automatically</option>{% for c in customers %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select>
+<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required><button>Upload &amp; read</button></form></div>
+<div class="card"><h2>To review</h2><table><tr><th>#</th><th>Uploaded</th><th>Type</th><th>From</th><th>Customer</th><th>Found</th><th>Status</th></tr>
+{% for d in pending %}<tr><td><a href="/staff/documents/{{d.id}}">{{d.id}}</a></td><td>{{ d.created_at.strftime("%d-%b %H:%M") }}</td><td>{{d.kind}}</td><td>{{d.source}} · {{d.uploaded_by}}</td><td>{{ d.customer.name if d.customer else "?" }}</td>
+<td>{% if d.kind == "payment" %}{{ (d.extracted.amount|inr) if d.extracted.amount else "" }} {{ d.extracted.reference or "" }}{% else %}{{ d.extracted.invoice_number or "" }} {{ (d.extracted.total_amount|inr) if d.extracted.total_amount else "" }}{% endif %}</td>
+<td>{% if d.status == "processing" %}<span class="tag">reading…</span>{% else %}<a href="/staff/documents/{{d.id}}" class="tag warn">review{% if d.warnings %} · {{d.warnings|length}} checks{% endif %}</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan=7 class="muted">Nothing waiting.</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Recently done</h2><table>{% for d in recent %}<tr><td><a href="/staff/documents/{{d.id}}">{{d.id}}</a></td><td>{{d.kind}}</td><td>{{ d.customer.name if d.customer else "" }}</td><td><span class="tag {{ 'ok' if d.status=='confirmed' else 'bad' }}">{{d.status}}</span></td><td class="muted">{{d.reviewed_by}} {{ d.reviewed_at.strftime("%d-%b %H:%M") if d.reviewed_at else "" }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

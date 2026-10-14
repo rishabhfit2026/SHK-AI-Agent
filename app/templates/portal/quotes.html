@@ -1,0 +1,12 @@
+{% extends "portal/base.html" %}{% block body %}
+<div class="page-title"><div><h1>Your quotes</h1><p>Rates move daily with raw material, so a quote is valid on the day it's issued.</p></div></div>
+<p class="muted">Accepting a quote tells our sales team to confirm the order, PO and payment with you.</p>
+<div class="card"><table><tr><th>Quote</th><th>Date</th><th>Items</th><th>Delivery</th><th class="n">Total incl. GST</th><th>Status</th><th></th></tr>
+{% for q in quotes %}<tr><td>{{q.number}}</td><td>{{ q.created_at.strftime("%d %b %Y") }}</td>
+<td>{% for l in q.lines %}{{l.product.name}} {{l.variant}} · {{l.qty_mt}} MT{% if q.status not in ("pending_approval","rejected") %} @ {{ l.rate_per_mt|inr }}/MT{% endif %}<br>{% endfor %}</td>
+<td>{{q.destination}}</td><td class="n">{{ (q.grand_total|inr) if q.status not in ("pending_approval","rejected") else "being confirmed" }}</td>
+<td><span class="tag {{ 'ok' if q.status=='accepted' else ('warn' if q.status=='pending_approval') }}">{{ {"pending_approval":"being confirmed","sent":"ready","approved":"ready"}.get(q.status, q.status) }}</span></td>
+<td style="white-space:nowrap">{% if q.status in ("approved","sent","accepted") and q.pdf_path %}<a href="/portal/quotes/{{q.number}}.pdf">PDF</a>{% endif %}
+{% if q.status in ("approved","sent") and q.valid_until >= today %}<form method="post" action="/portal/quotes/{{q.number}}/accept" class="inline" onsubmit="return confirm('Accept {{q.number}}? Our sales team will call to confirm the order.')"><button>Accept</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan=7 class="muted">No quotes yet. Ask for today's rate in the chat on the <a href="/portal">overview</a> page.</td></tr>{% endfor %}</table></div>
+{% endblock %}

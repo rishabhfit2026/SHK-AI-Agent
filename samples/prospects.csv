@@ -1,0 +1,3 @@
+company,segment,product,city,state,contact_name,designation,phone,email,current_supplier,est_annual_qty_mt,notes
+Example Cement Works,cement,Grinding Media Balls,Raipur,Chhattisgarh,Plant Head,Plant Head,,,Imported,500,Two ball mills
+Example Iron Ore Mine,mining,Tooth Points,Bacheli,Chhattisgarh,Maintenance Manager,Maintenance,,,,30,Excavator fleet

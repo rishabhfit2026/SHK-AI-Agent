@@ -1,0 +1,37 @@
+{% extends "staff/base.html" %}{% block body %}
+{% set f = scan.extracted or {} %}
+<h1>{{ "Payment proof" if scan.kind == "payment" else "Invoice" }} #{{scan.id}} <span class="tag {{ 'ok' if scan.status=='confirmed' else ('bad' if scan.status=='rejected' else 'warn') }}">{{ scan.status.replace("_"," ") }}</span></h1>
+<p class="muted">From {{scan.source}} · {{scan.uploaded_by}} · {{ scan.created_at.strftime("%d %b %Y %H:%M") }}{% if scan.original_name %} · {{scan.original_name}}{% endif %}{% if scan.ocr_confidence is not none %} · OCR confidence {{ "%.0f"|format(scan.ocr_confidence*100) }}%{% endif %}</p>
+{% if scan.status == "processing" %}<div class="card">Reading the document… <a href="/staff/documents/{{scan.id}}">refresh</a> in a few seconds.</div><script>setTimeout(function(){location.reload()},4000)</script>{% endif %}
+{% if scan.note %}<div class="card"><b>Uploader's note:</b> {{scan.note}}</div>{% endif %}
+{% if scan.warnings %}<div class="card" style="border-color:#f59e0b"><b>Check before confirming</b><ul style="margin:6px 0 0">{% for w in scan.warnings %}<li>{{w}}</li>{% endfor %}</ul></div>{% endif %}
+{% if scan.error %}<div class="card" style="border-color:#fca5a5"><pre>{{scan.error}}</pre></div>{% endif %}
+<div class="grid">
+<div class="card"><h2>Document</h2>{% if scan.file_path.endswith(".pdf") %}<iframe src="/staff/documents/{{scan.id}}/file" style="width:100%;height:560px;border:0"></iframe>{% else %}<a href="/staff/documents/{{scan.id}}/file" target="_blank"><img src="/staff/documents/{{scan.id}}/file" alt="uploaded document" style="max-width:100%;border:1px solid var(--line)"></a>{% endif %}
+<details style="margin-top:8px"><summary>Text read by OCR</summary><pre style="font-family:monospace;font-size:12px">{{ scan.ocr_text or "(none)" }}</pre></details></div>
+<div class="card">{% if scan.status == "needs_review" %}
+{% if scan.kind == "payment" %}<h2>Record payment</h2>
+<form method="post" action="/staff/documents/{{scan.id}}/confirm-payment" class="auth" style="margin:0;max-width:none">
+<label>Customer</label><select name="customer_id" required><option value="">choose…</option>{% for c in customers %}<option value="{{c.id}}" {{ 'selected' if c.id==scan.customer_id }}>{{c.name}}</option>{% endfor %}</select>
+<label>Amount (₹)</label><input name="amount" type="number" step="0.01" required value="{{ f.amount or '' }}">
+<label>Payment date</label><input name="paid_on" type="date" required value="{{ f.paid_on or today }}">
+<label>UTR / reference</label><input name="reference" value="{{ f.reference or '' }}">
+<label>Mode</label><input name="mode" value="{{ f.mode or '' }}">
+<label>Apply to invoice</label><select name="invoice_id"><option value="0">Oldest open invoices first</option>{% for i in invoices %}<option value="{{i.id}}" {{ 'selected' if i.id==f.suggested_invoice_id }}>{{i.number}} · {{ i.outstanding|inr }} due {{i.due_date}}</option>{% endfor %}</select>
+<p class="muted" style="font-size:12px">Payer on slip: {{ f.payer_name or "-" }} ({{ f.payer_bank or "-" }}) · Beneficiary: {{ f.payee_name or "-" }}{% if f.invoice_numbers %} · Mentions: {{ f.invoice_numbers|join(", ") }}{% endif %}</p>
+<button>Confirm &amp; record payment</button></form>
+{% else %}<h2>Create invoice</h2>
+<form method="post" action="/staff/documents/{{scan.id}}/confirm-invoice" class="auth" style="margin:0;max-width:none">
+<label>Customer</label><select name="customer_id"><option value="0">+ New customer (fill below)</option>{% for c in customers %}<option value="{{c.id}}" {{ 'selected' if c.id==scan.customer_id }}>{{c.name}}</option>{% endfor %}</select>
+<div class="row" style="flex-wrap:nowrap"><div style="flex:2"><label>New customer name</label><input name="new_customer_name" value="{{ '' if scan.customer_id else (f.buyer_name or '') }}"></div><div style="flex:1"><label>GSTIN</label><input name="gstin" value="{{ f.buyer_gstin or '' }}"></div></div>
+<div class="row" style="flex-wrap:nowrap"><div style="flex:1"><label>City</label><input name="city" value="{{ f.buyer_city or '' }}"></div><div style="flex:1"><label>State</label><input name="state" value="{{ f.buyer_state or '' }}"></div></div>
+<div class="row" style="flex-wrap:nowrap"><div style="flex:1"><label>Invoice no.</label><input name="number" required value="{{ f.invoice_number or '' }}"></div><div style="flex:1"><label>Invoice date</label><input name="invoice_date" type="date" required value="{{ f.invoice_date or '' }}"></div><div style="flex:1"><label>Due date</label><input name="due_date" type="date" value="{{ f.due_date or '' }}"></div></div>
+<label>Item</label><input name="item" value="{{ f.item or '' }}">
+<div class="row" style="flex-wrap:nowrap"><div style="flex:1"><label>Qty (MT)</label><input name="qty_mt" type="number" step="0.001" value="{{ f.qty_mt or '' }}"></div><div style="flex:1"><label>Rate / MT</label><input name="rate_per_mt" type="number" step="0.01" value="{{ f.rate_per_mt or '' }}"></div><div style="flex:1"><label>Total incl. GST (₹)</label><input name="amount" type="number" step="0.01" required value="{{ f.total_amount or '' }}"></div></div>
+<p class="muted" style="font-size:12px">Taxable {{ (f.taxable_value|inr) if f.taxable_value else "-" }} · GST {{ (f.gst_amount|inr) if f.gst_amount else "-" }}. Blank due date = invoice date + the customer's credit days.</p>
+<button>Confirm &amp; create invoice</button></form>{% endif %}
+<form method="post" action="/staff/documents/{{scan.id}}/reject" class="row" style="margin-top:12px"><input name="reason" placeholder="Reason (shown to customer for portal uploads)" style="flex:1"><button class="danger">Reject</button></form>
+<form method="post" action="/staff/documents/{{scan.id}}/reprocess" style="margin-top:6px"><button class="sec">Read again with OCR</button></form>
+{% elif scan.status == "confirmed" %}<h2>Done</h2><p>Confirmed by {{scan.reviewed_by}} on {{ scan.reviewed_at.strftime("%d %b %Y %H:%M") }}.{% if scan.customer %} <a href="/staff/customers/{{scan.customer_id}}">Open {{scan.customer.name}}</a>{% endif %}</p>
+{% elif scan.status == "rejected" %}<h2>Rejected</h2><p>By {{scan.reviewed_by}}.</p>{% endif %}</div></div>
+{% endblock %}

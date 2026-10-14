@@ -1,0 +1,9 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Try the chat</h1>
+<p class="muted">Chat exactly as a buyer would on the website. Choose "Anonymous visitor" to test a new enquiry, or pick a customer to test it as their logged-in portal user (orders, dues, certificates). Nothing is sent to anyone.</p>
+<form method="get" class="row" style="margin-bottom:12px"><select name="customer_id" onchange="this.form.submit()"><option value="0">Anonymous visitor</option>{% for c in customers %}<option value="{{c.id}}" {{ 'selected' if c.id==customer_id }}>{{c.name}} (logged in)</option>{% endfor %}</select></form>
+<div class="card">{% set messages = conv.messages if conv else [] %}{% include "staff/_chat.html" %}
+<form method="post" action="/staff/simulator" class="row" style="margin-top:10px" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='Thinking…'">
+<input type="hidden" name="customer_id" value="{{customer_id}}"><input name="text" placeholder="e.g. 'Sponge iron rate for 50 MT delivered Nagpur?' or 'Where is my last order?'" required autofocus style="flex:1;min-width:240px"><button>Send</button></form>
+<form method="post" action="/staff/simulator/reset" style="margin-top:6px"><input type="hidden" name="customer_id" value="{{customer_id}}"><button class="sec">Start over</button></form></div>
+{% endblock %}

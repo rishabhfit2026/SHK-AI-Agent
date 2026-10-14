@@ -1,0 +1,11 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Rates</h1>
+<div class="grid"><div class="card"><h2>Today's ex-works base rate (₹/MT)</h2><p class="muted">The AI quotes only from these. Grade/size premiums, payment-term adders and freight are added on top.</p>
+<form method="post" action="/staff/rates"><table><tr><th>Product</th><th class="n">Last rate</th><th>Today</th></tr>
+{% for p in products %}<tr><td>{{p.name}}</td><td class="n">{{ (last[p.id].base_rate_per_mt|inr)~" ("~last[p.id].rate_date.strftime("%d-%b")~")" if last[p.id] else "-" }}</td>
+<td><input name="rate_{{p.id}}" type="number" step="1" value="{{ todays[p.id].base_rate_per_mt|int if p.id in todays else '' }}" style="width:120px"></td></tr>{% endfor %}</table><p><button>Save today's rates</button></p></form></div>
+<div class="card"><h2>Market prices</h2><form method="post" action="/staff/rates/market" class="row"><input name="item" placeholder="Item e.g. Sponge iron (lumps), Raipur" required style="min-width:240px"><input name="price" type="number" step="0.01" placeholder="Price" required style="width:110px"><input name="unit" value="INR/MT" style="width:90px"><input name="source" placeholder="Source"><button>Add</button></form>
+<table style="margin-top:8px"><tr><th>Date</th><th>Item</th><th class="n">Price</th><th>Source</th></tr>{% for r in market %}<tr><td>{{r.price_date.strftime("%d-%b")}}</td><td>{{r.item}}</td><td class="n">{{ "{:,.0f}".format(r.price) }} {{r.unit}}</td><td class="muted">{{r.source}}</td></tr>{% endfor %}</table></div></div>
+<div class="card"><h2>Freight table (₹/MT from Siltara)</h2><form method="post" action="/staff/rates/freight" class="row"><input name="city" placeholder="City" required><input name="state" placeholder="State"><input name="per_mt" type="number" step="1" placeholder="₹/MT" required style="width:100px"><button>Save</button></form>
+<table style="margin-top:8px"><tr><th>City</th><th>State</th><th class="n">₹/MT</th></tr>{% for f in freight %}<tr><td>{{f.city.title()}}</td><td>{{f.state}}</td><td class="n">{{ "{:,.0f}".format(f.per_mt) }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

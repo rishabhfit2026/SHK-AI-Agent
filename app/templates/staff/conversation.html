@@ -1,0 +1,8 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>{{ conv.customer.name if conv.customer else conv.external_user }} <span class="muted" style="font-size:14px">{{conv.channel}}</span></h1>
+<div class="card">{% set messages = conv.messages %}{% include "staff/_chat.html" %}</div>
+<div class="grid"><div class="card"><h2>Reply as yourself</h2><form method="post" action="/staff/conversations/{{conv.id}}/reply"><textarea name="body" rows="3" required></textarea><p><button>Send</button></p></form>
+<p class="muted">Your reply appears in the buyer's chat window on the website or portal. If they have left, they'll see it next time they open the chat. Portal customers also get it in their inbox.</p></div>
+<div class="card"><h2>AI mode</h2><p>{% if conv.human_takeover %}A person is handling this chat. The AI stays silent.{% else %}The AI replies automatically.{% endif %}</p>
+<form method="post" action="/staff/conversations/{{conv.id}}/takeover">{% if conv.human_takeover %}<button>Hand back to AI</button>{% else %}<input type="hidden" name="on" value="true"><button class="sec">Take over (pause AI)</button>{% endif %}</form></div></div>
+{% endblock %}

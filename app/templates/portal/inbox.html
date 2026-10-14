@@ -1,0 +1,6 @@
+{% extends "portal/base.html" %}{% block body %}
+<div class="page-title"><div><h1>Messages</h1><p>Quotations, reminders and updates from SHK.</p></div></div>
+{% for n in items %}<div class="card {{ 'unread' if not n.read_at }}"><div class="row" style="justify-content:space-between"><b>{{ n.title }}</b><span class="muted">{{ n.created_at.strftime("%d %b %Y %H:%M") }}</span></div>
+<pre style="margin-top:6px">{{ n.body }}</pre>{% if n.attachment_path %}<p><a href="/portal/inbox/{{n.id}}/file">📄 Download attachment</a></p>{% endif %}</div>
+{% else %}<div class="card muted">No messages yet.</div>{% endfor %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% from "portal/_icons.html" import logo_mark %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Shri Hare-Krishna Sponge Iron | Buyer Portal{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/site.css"></head><body class="site">
+{% set cur = request.url.path %}
+<header class="nav"><div class="wrap">
+<a class="logo" href="/">{{ logo_mark() }}<span class="name">Shri Hare-Krishna Sponge Iron Ltd<small>Sponge iron · MS billets · Structural sections · Steel shots &amp; grits</small></span></a>
+<nav>
+{% if user %}
+{% for href, label in [("/portal","Chat & overview"),("/portal/quotes","Quotes"),("/portal/orders","Orders & dispatch"),("/portal/account","Account"),("/portal/inbox","Messages")] %}
+<a href="{{href}}" class="{{ 'on' if cur == href }}">{{label}}{% if href == "/portal/inbox" and unread %}<span class="badge">{{unread}}</span>{% endif %}</a>{% endfor %}
+<form method="post" action="/portal/logout" class="inline"><button class="btn btn-outline btn-sm">Log out</button></form>
+{% else %}<a href="/" class="{{ 'on' if cur == '/' }}">Home</a><a href="/portal/login" class="{{ 'on' if cur == '/portal/login' }}">Customer login</a><a href="/portal/register" class="btn btn-primary btn-sm" style="margin-left:6px">Register</a>{% endif %}
+</nav></div></header>
+<main>{% block page %}<div class="wrap page">{% block body %}{% endblock %}</div>{% endblock %}</main>
+<footer class="foot-line">{{ settings.company_address }} · <a href="tel:+91771264984">{{ settings.company_phone }}</a> · <a href="https://shkraipur.com" target="_blank" rel="noopener">shkraipur.com</a></footer>
+<script src="/static/chat.js" defer></script>
+</body></html>

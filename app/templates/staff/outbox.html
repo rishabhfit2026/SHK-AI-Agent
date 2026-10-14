@@ -1,0 +1,12 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Outbox · approve before sending</h1>
+<p class="muted">Every message to buyers that the system drafts (payment reminders, reorder check-ins, quotes that needed approval, outreach) waits here. Approved messages are delivered within a minute to the customer's portal inbox and by email.{% if not settings.email_enabled %} <b>Email (SMTP) is not configured: messages only reach the portal inbox.</b>{% endif %}</p>
+{% for o in pending %}<div class="card"><div class="row" style="justify-content:space-between"><div><span class="tag">{{o.kind}}</span> to <b>{{o.to_name}}</b> {{o.to_email}}</div><span class="muted">{{ o.created_at.strftime("%d-%b %H:%M") }}</span></div>
+<form method="post" action="/staff/outbox/{{o.id}}/approve" style="margin-top:8px"><textarea name="body" rows="4">{{o.body}}</textarea>
+<div class="row" style="margin-top:6px"><button>Approve &amp; send</button>{% if o.quote_id %}<a href="/staff/quotes/{{o.quote_id}}/pdf" target="_blank">view quote PDF</a> <span class="muted">(approving also approves the quote)</span>{% endif %}</div></form>
+<form method="post" action="/staff/outbox/{{o.id}}/reject" style="margin-top:4px"><button class="sec">Reject</button></form></div>
+{% else %}<div class="card muted">Nothing waiting for approval.</div>{% endfor %}
+<div class="card"><h2>Recent</h2><table><tr><th>When</th><th>Kind</th><th>To</th><th>Message</th><th>Status</th></tr>
+{% for o in recent %}<tr><td>{{ (o.sent_at or o.created_at).strftime("%d-%b %H:%M") }}</td><td>{{o.kind}}</td><td>{{o.to_name}}<div class="muted">{{o.to_email}}</div></td><td><pre>{{o.body[:220]}}</pre></td>
+<td><span class="tag {{ 'ok' if o.status=='sent' else ('bad' if o.status in ('failed','rejected') else '') }}">{{o.status}}</span><div class="muted">{{o.error}}</div></td></tr>{% endfor %}</table></div>
+{% endblock %}

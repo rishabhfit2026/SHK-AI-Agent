@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}SHK Sales Desk{% endblock %}</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<header><b>SHK Sales Desk</b><nav>
+{% set cur = request.url.path %}
+{% for href, label in [("/staff","Today"),("/staff/leads","Leads"),("/staff/quotes","Quotes"),("/staff/customers","Customers"),("/staff/orders","Orders"),("/staff/receivables","Receivables"),("/staff/documents","Documents"),("/staff/pipeline","New products"),("/staff/outbox","Outbox"),("/staff/conversations","Chats"),("/staff/rates","Rates"),("/staff/ask","Ask AI"),("/staff/simulator","Try the chat"),("/staff/import","Import")] %}
+<a href="{{href}}" class="{{ 'on' if (cur == href or (href != "/staff" and cur.startswith(href))) }}">{{label}}</a>{% endfor %}
+</nav><a href="/" target="_blank" style="margin-left:auto">View website ↗</a></header>
+<main>
+{% if not settings.llm_enabled %}<div class="card" style="border-color:#f59e0b">Groq API key not set: chat, drafting and AI briefs are off. Set <code>GROQ_API_KEY</code> in <code>.env</code>.</div>{% endif %}
+{% block body %}{% endblock %}</main></body></html>

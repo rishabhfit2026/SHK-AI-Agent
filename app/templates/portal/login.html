@@ -1,0 +1,9 @@
+{% extends "portal/base.html" %}{% block page %}<div class="auth-page">
+<div class="card auth"><h1>Customer login</h1><p class="sub">Track orders, download test certificates and see your account.</p>
+{% if error %}<div class="err">{{error}}</div>{% endif %}
+<form method="post" action="/portal/login"><input type="hidden" name="next" value="{{next}}">
+<label>Email</label><input name="email" type="email" required autofocus autocomplete="email">
+<label>Password</label><input name="password" type="password" required autocomplete="current-password">
+<button>Log in</button></form>
+<p class="muted">New buyer? <a href="/portal/register">Create an account</a>. Existing SHK customer without a login? Ask your sales contact or call {{ settings.company_phone }}.</p></div>
+</div>{% endblock %}

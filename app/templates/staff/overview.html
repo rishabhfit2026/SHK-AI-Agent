@@ -1,0 +1,27 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Today · {{ today.strftime("%d %b %Y") }}</h1>
+<div class="kpis">
+ <div class="kpi"><span>Outstanding</span><b>{{ m.receivables.total }}</b></div>
+ <div class="kpi"><span>Overdue</span><b>{{ m.receivables.overdue }}</b></div>
+ <div class="kpi"><span>90+ days</span><b>{{ m.receivables.over_90_days }}</b></div>
+ <div class="kpi"><span>Customers past cycle</span><b>{{ m.lapsed_count }}</b></div>
+ <div class="kpi"><span>Quotes awaiting approval</span><b>{{ m.quotes_pending_approval|length }}</b></div>
+ <div class="kpi"><span>Messages awaiting approval</span><b><a href="/staff/outbox">{{ pending_out }}</a></b></div>
+</div>
+{% if m.rates_not_entered_today %}<div class="card" style="border-color:#f59e0b"><b>Today's rate not entered</b> for {{ m.rates_not_entered_today|join(", ") }}. The AI will not quote these until you <a href="/staff/rates">enter rates</a>.</div>{% endif %}
+<div class="grid">
+<div class="card"><div class="row" style="justify-content:space-between"><h2>Daily brief {% if brief %}<span class="muted">· {{ brief.brief_date }}</span>{% endif %}</h2>
+<form method="post" action="/staff/brief/generate" class="inline"><button class="sec">Regenerate</button></form></div>
+{% if brief %}<pre>{{ brief.narrative }}</pre>{% else %}<p class="muted">No brief yet. It's generated at 08:00 IST, or click Regenerate.</p>{% endif %}</div>
+<div class="card"><h2>Hot leads</h2><table><tr><th>Who</th><th>Product</th><th class="n">MT</th><th class="n">Score</th></tr>
+{% for l in m.hot_leads %}<tr><td>{{ l.who }}</td><td>{{ l.product }}</td><td class="n">{{ l.qty_mt or "" }}</td><td class="n">{{ l.score }}</td></tr>{% else %}<tr><td colspan=4 class="muted">None</td></tr>{% endfor %}</table></div>
+</div>
+<div class="card"><h2>Open tasks</h2><table><tr><th>Due</th><th>Task</th><th>Owner</th><th></th></tr>
+{% for t in tasks %}<tr><td>{{ t.due_date or "" }}</td><td>{{ t.title }}{% if t.details %}<div class="muted">{{ t.details }}</div>{% endif %}</td><td>{{ t.rep.name if t.rep else "-" }}</td>
+<td style="white-space:nowrap"><form method="post" action="/staff/tasks/{{t.id}}/done" class="inline"><button class="sec">Done</button></form>
+<form method="post" action="/staff/tasks/{{t.id}}/dismiss" class="inline"><button class="sec">Dismiss</button></form></td></tr>
+{% else %}<tr><td colspan=4 class="muted">Nothing open.</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Run jobs now</h2><div class="row">{% for j in ["reorder_scan","payment_reminders","pipeline_followups","flush_outbox","daily_brief"] %}
+<form method="post" action="/staff/jobs/{{j}}" class="inline"><button class="sec">{{ j.replace("_"," ") }}</button></form>{% endfor %}</div>
+<p class="muted">These also run automatically: brief 08:00, reorder 09:00, pipeline 09:15, payments 10:00, outbox every minute.</p></div>
+{% endblock %}

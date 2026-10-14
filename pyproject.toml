@@ -1,0 +1,27 @@
+[project]
+name = "shk-sales-desk"
+version = "0.1.0"
+description = "AI sales desk and CRM for Shri Hare-Krishna Sponge Iron Ltd"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "apscheduler>=3.11.3",
+    "fastapi>=0.143.0",
+    "groq>=1.7.0",
+    "httpx>=0.28.1",
+    "itsdangerous>=2.2.0",
+    "jinja2>=3.1.6",
+    "pillow>=12.3.0",
+    "pypdfium2>=5.14.0",
+    "python-dotenv>=1.2.4",
+    "python-multipart>=0.0.32",
+    "reportlab>=5.0.1",
+    "sqlalchemy>=2.1.4",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+    "pytest>=9.1.1",
+]

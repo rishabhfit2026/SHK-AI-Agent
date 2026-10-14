@@ -1,0 +1,10 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Leads</h1>
+<div class="row" style="margin-bottom:10px">{% for s in ["","new","qualified","quoted","nurturing","won","lost"] %}<a class="tag {{ 'ok' if s==status }}" href="/staff/leads?status={{s}}">{{ s or "all" }}</a>{% endfor %}</div>
+<div class="card"><table><tr><th>#</th><th>When</th><th>Source</th><th>Who</th><th>Product</th><th class="n">MT</th><th>Where</th><th>Status</th><th class="n">Score</th><th>Owner</th></tr>
+{% for l in leads %}<tr><td><a href="/staff/leads/{{l.id}}">{{l.id}}</a></td><td>{{ l.created_at.strftime("%d-%b %H:%M") }}</td><td>{{ l.source }}</td>
+<td>{{ l.company or l.name or l.phone }}{% if l.customer_id %} <span class="tag ok">customer</span>{% endif %}</td><td>{{ l.product.name if l.product else "" }} {{ l.variant_text }}</td>
+<td class="n">{{ l.qty_mt or "" }}</td><td>{{ l.city }}{% if l.state %}, {{ l.state }}{% endif %}</td><td><span class="tag">{{ l.status }}</span></td>
+<td class="n"><span class="tag {{ 'ok' if l.score>=60 else ('warn' if l.score>=35) }}">{{ l.score }}</span></td><td>{{ l.rep.name if l.rep else "-" }}</td></tr>
+{% else %}<tr><td colspan=10 class="muted">No leads.</td></tr>{% endfor %}</table></div>
+{% endblock %}

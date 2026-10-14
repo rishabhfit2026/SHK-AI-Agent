@@ -1,0 +1,9 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Customers · buying cycles</h1>
+<p class="muted">"Usual gap" is the median days between orders (needs 3+ orders). Lapsed = more than {{ settings.reorder_lapse_factor }}× the usual gap since the last order.</p>
+<div class="card"><table><tr><th>Customer</th><th>Segment</th><th>Owner</th><th class="n">Orders</th><th class="n">Usual gap</th><th class="n">Days since</th><th class="n">Avg MT</th><th class="n">Last MT</th><th>Signal</th><th class="n">Overdue</th></tr>
+{% for c in cycles %}{% set d = dues.get(c.customer.id) %}<tr><td><a href="/staff/customers/{{c.customer.id}}">{{c.customer.name}}</a><div class="muted">{{c.customer.city}}</div></td><td>{{c.customer.segment}}</td><td>{{ c.customer.rep.name if c.customer.rep else "-" }}</td>
+<td class="n">{{c.orders}}</td><td class="n">{{ "%g"|format(c.usual_gap_days) if c.usual_gap_days else "-" }}</td><td class="n">{{ c.days_since if c.days_since is not none else "-" }}</td><td class="n">{{c.avg_qty_mt}}</td><td class="n">{{c.last_qty_mt}}</td>
+<td>{% if c.lapsed %}<span class="tag bad">lapsed</span>{% elif c.due_soon %}<span class="tag warn">due now</span>{% endif %}{% if c.volume_drop %} <span class="tag warn">volume drop</span>{% endif %}</td>
+<td class="n">{{ (d.overdue|inr) if d and d.overdue else "" }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

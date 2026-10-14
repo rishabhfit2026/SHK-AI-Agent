@@ -1,0 +1,9 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Import from Tally / ERP</h1>
+{% if result %}<div class="card" style="border-color:#16a34a">{{result}}</div>{% endif %}
+<div class="grid"><div class="card"><h2>Sales register (CSV)</h2><p class="muted">Columns: date, voucher_no, party, gstin, phone, city, state, item, qty_mt, rate, amount, due_date (optional). Amount includes GST. Re-importing the same voucher numbers is safe.</p>
+<form method="post" action="/staff/import/sales" enctype="multipart/form-data" class="row"><input type="file" name="file" accept=".csv" required><button>Import sales</button></form></div>
+<div class="card"><h2>Receipts (CSV)</h2><p class="muted">Columns: date, party, amount, mode, ref, invoice_no (optional). Applied to the named invoice or oldest open invoices.</p>
+<form method="post" action="/staff/import/receipts" enctype="multipart/form-data" class="row"><input type="file" name="file" accept=".csv" required><button>Import receipts</button></form></div></div>
+<p class="muted">Tally: Display → Account Books → Sales Register → Alt+E export as CSV, then rename columns to match. Customer buying cycles and receivables update right after import.</p>
+{% endblock %}

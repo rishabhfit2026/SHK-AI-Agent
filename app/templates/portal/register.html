@@ -1,0 +1,13 @@
+{% extends "portal/base.html" %}{% block page %}<div class="auth-page">
+<div class="card auth"><h1>Create your buyer account</h1><p class="sub">Keep all your quotations in one place and chat with our sales desk.</p>
+{% if error %}<div class="err">{{error}}</div>{% endif %}
+<form method="post" action="/portal/register">
+<label>Your name</label><input name="name" required value="{{form.name}}">
+<label>Company</label><input name="company" value="{{form.company}}">
+<label>Email</label><input name="email" type="email" required value="{{form.email}}" autocomplete="email">
+<label>Mobile</label><input name="phone" value="{{form.phone}}" autocomplete="tel">
+<div class="row" style="flex-wrap:nowrap"><div style="flex:1"><label>City</label><input name="city" value="{{form.city}}"></div><div style="flex:1"><label>State</label><input name="state" value="{{form.state}}"></div></div>
+<label>Password (8+ characters)</label><input name="password" type="password" required minlength="8" autocomplete="new-password">
+<button>Create account</button></form>
+<p class="muted">Already an SHK customer? Ask your sales contact for a login so you can see your orders and invoices.</p></div>
+</div>{% endblock %}

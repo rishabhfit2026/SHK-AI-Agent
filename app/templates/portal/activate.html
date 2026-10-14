@@ -1,0 +1,6 @@
+{% extends "portal/base.html" %}{% block page %}<div class="auth-page">
+<div class="card auth">{% if user %}<h1>Set your password</h1><p>Welcome, {{ user.name or user.company }}. Choose a password for <b>{{ user.email }}</b>.</p>
+{% if error %}<div class="err">{{error}}</div>{% endif %}
+<form method="post" action="/portal/activate/{{token}}"><label>Password (8+ characters)</label><input name="password" type="password" required minlength="8" autofocus autocomplete="new-password"><button>Activate my account</button></form>
+{% else %}<h1>Link expired</h1><p>This activation link is invalid or has already been used. <a href="/portal/login">Log in</a>, or ask your sales contact for a new link.</p>{% endif %}</div>
+</div>{% endblock %}

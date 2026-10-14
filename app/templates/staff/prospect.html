@@ -1,0 +1,10 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>{{p.company}} <span class="tag">{{ p.stage.replace("_"," ") }}</span></h1>
+<div class="grid"><div class="card"><table>
+{% for k,v in [("Segment",p.segment),("Product",p.product.name if p.product else ""),("Location",p.city~", "~p.state),("Contact",p.contact_name~" · "~p.designation),("Phone",p.phone),("Email",p.email),("Current supplier",p.current_supplier),("Est. annual MT",p.est_annual_qty_mt),("Next action",p.next_action),("Due",p.next_action_date),("Notes",p.notes)] %}
+<tr><th>{{k}}</th><td>{{ v if v not in (None,"") else "-" }}</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Move stage</h2><form method="post" action="/staff/pipeline/{{p.id}}/stage" class="row"><select name="stage">{% for s in stages %}<option {{ 'selected' if s==p.stage }}>{{s}}</option>{% endfor %}</select><input name="note" placeholder="Note (trial result, feedback...)"><button>Save</button></form>
+<h2 style="margin-top:14px">Draft a message with AI</h2><form method="post" action="/staff/pipeline/{{p.id}}/draft"><input name="purpose" placeholder="Purpose, e.g. offer 5 MT trial lot of 60mm balls" style="width:100%"><p><button>Draft to Outbox</button></p></form>
+<p class="muted">Drafts appear in the timeline and, if the prospect has an email address, in the Outbox for approval.</p></div></div>
+<div class="card"><h2>Timeline</h2><table>{% for a in acts %}<tr><td class="muted" style="white-space:nowrap">{{ a.created_at.strftime("%d-%b %H:%M") }}</td><td>{{a.actor}}</td><td><pre>{{a.text}}</pre></td></tr>{% endfor %}</table></div>
+{% endblock %}

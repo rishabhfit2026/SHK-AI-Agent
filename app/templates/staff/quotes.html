@@ -1,0 +1,14 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Quotes</h1>
+<div class="card"><table><tr><th>No.</th><th>Date</th><th>Party</th><th>Items</th><th>Delivery / terms</th><th class="n">Sub-total</th><th class="n">Total</th><th>Status</th><th></th></tr>
+{% for q in quotes %}<tr><td><a href="/staff/quotes/{{q.id}}/pdf">{{q.number}}</a></td><td>{{ q.created_at.strftime("%d-%b %H:%M") }}</td><td>{{q.party_name}}<div class="muted">{{q.party_phone}}</div></td>
+<td>{% for l in q.lines %}{{l.product.name}} {{l.variant}} · {{l.qty_mt}} MT @ {{ l.rate_per_mt|inr }}<br>{% endfor %}</td><td>{{q.destination}}<div class="muted">{{q.payment_term_code}}</div></td>
+<td class="n">{{q.subtotal|inr}}</td><td class="n">{{q.grand_total|inr}}</td>
+<td><span class="tag {{ 'warn' if q.status=='pending_approval' else ('ok' if q.status in ('accepted','sent','approved') else '') }}">{{q.status}}</span>{% if q.approval_reason %}<div class="muted">{{q.approval_reason}}</div>{% endif %}</td>
+<td style="min-width:200px">{% if q.status=='pending_approval' %}
+<form method="post" action="/staff/quotes/{{q.id}}/approve"><input name="reason" placeholder="Approval note (optional)"> <button>Approve &amp; send</button></form>
+<form method="post" action="/staff/quotes/{{q.id}}/reject" style="margin-top:4px"><input name="reason" placeholder="Reason"> <button class="danger">Reject</button></form>
+{% elif q.status in ('accepted','sent','approved') %}<form method="post" action="/staff/quotes/{{q.id}}/order">{% if not q.customer_id %}<select name="customer_id"><option value="0">+ new customer from quote</option>{% for c in customers %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select>{% endif %}
+<button class="sec">Convert to order</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan=9 class="muted">No quotes yet.</td></tr>{% endfor %}</table></div>
+{% endblock %}

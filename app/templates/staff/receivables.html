@@ -1,0 +1,9 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Receivables</h1>
+<div class="kpis">{% for b in buckets %}<div class="kpi"><span>{{ "Not yet due" if b=="not_due" else b~" days overdue" }}</span><b>{{ totals[b]|inr }}</b></div>{% endfor %}</div>
+<p class="muted">Reminders are drafted automatically 3 days before due, on the due date, and 7, 15 and 30 days after. At 30 days the owner also gets a call task. Drafts wait in the <a href="/staff/outbox">Outbox</a> for approval.</p>
+<div class="card"><table><tr><th>Customer</th>{% for b in buckets %}<th class="n">{{b}}</th>{% endfor %}<th class="n">Total</th><th>Record payment</th></tr>
+{% for r in rows %}<tr><td><a href="/staff/customers/{{r.customer.id}}">{{r.customer.name}}</a></td>{% for b in buckets %}<td class="n">{{ (r.buckets[b]|inr) if r.buckets[b] else "" }}</td>{% endfor %}<td class="n"><b>{{r.total|inr}}</b></td>
+<td><form method="post" action="/staff/receivables/payment" class="row"><input type="hidden" name="customer_id" value="{{r.customer.id}}"><input name="amount" type="number" step="0.01" placeholder="Amount" required style="width:110px"><input name="ref" placeholder="UTR" style="width:100px"><button class="sec">Add</button></form></td></tr>
+{% else %}<tr><td colspan=8 class="muted">Nothing outstanding.</td></tr>{% endfor %}</table></div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Lead #{{lead.id}} · {{ lead.company or lead.name or lead.phone }}</h1>
+<div class="grid"><div class="card"><table>
+{% for k,v in [("Phone",lead.phone),("Email",lead.email),("Source",lead.source),("Product",(lead.product.name if lead.product else "")~" "~lead.variant_text),("Quantity (MT)",lead.qty_mt),("Frequency",lead.frequency),("Location",lead.city~", "~lead.state),("Payment terms",lead.payment_terms),("Timeline",lead.timeline),("Requirement",lead.requirement),("Score",lead.score),("Customer",lead.customer.name if lead.customer else "new party")] %}
+<tr><th>{{k}}</th><td>{{ v if v not in (None,"") else "-" }}</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Update</h2><form method="post" action="/staff/leads/{{lead.id}}">
+<div class="row"><select name="status">{% for s in ["new","qualified","quoted","nurturing","won","lost"] %}<option {{ 'selected' if s==lead.status }}>{{s}}</option>{% endfor %}</select>
+<select name="rep_id"><option value="0">unassigned</option>{% for r in reps %}<option value="{{r.id}}" {{ 'selected' if r.id==lead.rep_id }}>{{r.name}}</option>{% endfor %}</select>
+<input name="lost_reason" placeholder="Lost reason (if lost)" value="{{lead.lost_reason}}"></div>
+<p><textarea name="note" rows="3" placeholder="Add a note (call outcome, price feedback...)"></textarea></p><button>Save</button></form>
+<p class="muted">Marking "won" creates a customer record if there isn't one, and gives their portal login access to orders and invoices.</p>
+{% for u in logins %}<h2 style="margin-top:12px">Portal login: {{u.email}}</h2>{% if u.customer_id %}<p>Linked to customer account.</p>{% else %}
+<p class="muted">Self-registered. They only see their own quotes. If this is an existing customer, check who they are, then link:</p>
+<form method="post" action="/staff/portal-users/{{u.id}}/link" class="row"><select name="customer_id">{% for c in customers %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select><button class="sec">Link to customer</button></form>{% endif %}{% endfor %}</div></div>
+<div class="grid"><div class="card"><h2>Quotes</h2><table>{% for q in quotes %}<tr><td><a href="/staff/quotes/{{q.id}}/pdf">{{q.number}}</a></td><td>{{ q.subtotal|inr }}</td><td><span class="tag">{{q.status}}</span></td></tr>{% else %}<tr><td class="muted">None</td></tr>{% endfor %}</table>
+<h2 style="margin-top:12px">Chats</h2>{% for c in convs %}<a href="/staff/conversations/{{c.id}}">{{c.channel}} · {{c.external_user}}</a><br>{% else %}<span class="muted">None</span>{% endfor %}</div>
+<div class="card"><h2>Timeline</h2><table>{% for a in acts %}<tr><td class="muted" style="white-space:nowrap">{{ a.created_at.strftime("%d-%b %H:%M") }}</td><td>{{a.actor}}</td><td>{{a.text}}</td></tr>{% else %}<tr><td class="muted">Nothing yet</td></tr>{% endfor %}</table></div></div>
+{% endblock %}

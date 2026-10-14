@@ -1,0 +1,7 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Chats</h1>
+<div class="card"><table><tr><th>Channel</th><th>Who</th><th>Lead</th><th>Last message</th><th>Mode</th></tr>
+{% for c in convs %}<tr><td>{{c.channel}}</td><td><a href="/staff/conversations/{{c.id}}">{{ c.customer.name if c.customer else c.external_user }}</a></td>
+<td>{% if c.lead %}<a href="/staff/leads/{{c.lead.id}}">#{{c.lead.id}} {{c.lead.status}}</a>{% endif %}</td><td>{{ c.last_inbound_at.strftime("%d-%b %H:%M") if c.last_inbound_at else "" }}</td>
+<td>{% if c.human_takeover %}<span class="tag warn">human</span>{% else %}<span class="tag ok">AI</span>{% endif %}</td></tr>{% else %}<tr><td colspan=5 class="muted">No chats yet.</td></tr>{% endfor %}</table></div>
+{% endblock %}

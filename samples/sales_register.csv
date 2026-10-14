@@ -1,0 +1,5 @@
+date,voucher_no,party,gstin,phone,city,state,item,qty_mt,rate,amount,due_date
+01-09-2026,SHK/25-26/1001,Bhilai Steels Pvt Ltd,22AAAAA0000A1Z5,9826000001,Bhilai,Chhattisgarh,Sponge Iron,50,27000,1593000,
+11-09-2026,SHK/25-26/1012,Bhilai Steels Pvt Ltd,22AAAAA0000A1Z5,9826000001,Bhilai,Chhattisgarh,Sponge Iron,45,27200,1444320,
+20-09-2026,SHK/25-26/1030,Bhilai Steels Pvt Ltd,22AAAAA0000A1Z5,9826000001,Bhilai,Chhattisgarh,Sponge Iron,55,27350,1775015,
+05-09-2026,SHK/25-26/1005,Nagpur Re-Rollers,27BBBBB0000B1Z5,9822000002,Nagpur,Maharashtra,MS Billets,120,40500,5734800,05-10-2026

@@ -1,0 +1,16 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>New products pipeline <span class="muted" style="font-size:14px">grinding media balls · tooth points · alloy castings</span></h1>
+<div class="kpis">{% for s in stages %}<div class="kpi"><span>{{ s.replace("_"," ") }}</span><b>{{ funnel[s] }}</b></div>{% endfor %}</div>
+<div class="card"><table><tr><th>Company</th><th>Segment</th><th>Product</th><th>Contact</th><th class="n">Est. MT/yr</th><th>Stage</th><th>Next action</th><th>Due</th></tr>
+{% for p in prospects %}<tr><td><a href="/staff/pipeline/{{p.id}}">{{p.company}}</a><div class="muted">{{p.city}}</div></td><td>{{p.segment}}</td><td>{{ p.product.name if p.product else "" }}</td><td>{{p.contact_name}}<div class="muted">{{p.phone}}</div></td>
+<td class="n">{{ p.est_annual_qty_mt or "" }}</td><td><span class="tag">{{ p.stage.replace("_"," ") }}</span></td><td>{{p.next_action}}</td>
+<td>{% if p.next_action_date %}{{p.next_action_date}}{% if p.next_action_date <= today and p.stage != 'lost' %} <span class="tag warn">due</span>{% endif %}{% endif %}</td></tr>
+{% else %}<tr><td colspan=8 class="muted">No prospects yet.</td></tr>{% endfor %}</table></div>
+<div class="grid"><div class="card"><h2>Add prospect</h2><form method="post" action="/staff/pipeline" class="row">
+<input name="company" placeholder="Company" required><select name="segment"><option value="">segment</option>{% for s in ["cement","mining","power","earthmoving","steel"] %}<option>{{s}}</option>{% endfor %}</select>
+<select name="product"><option value="">product (auto from segment)</option>{% for pr in products %}<option>{{pr.name}}</option>{% endfor %}</select>
+<input name="city" placeholder="City"><input name="state" placeholder="State"><input name="contact_name" placeholder="Contact"><input name="designation" placeholder="Designation">
+<input name="phone" placeholder="Phone"><input name="est_annual_qty_mt" placeholder="Est. MT/yr" style="width:100px"><button>Add</button></form></div>
+<div class="card"><h2>Import CSV</h2><p class="muted">Columns: company, segment, product, city, state, contact_name, designation, phone, email, current_supplier, est_annual_qty_mt, notes</p>
+<form method="post" action="/staff/pipeline/import" enctype="multipart/form-data" class="row"><input type="file" name="file" accept=".csv" required><button>Import</button></form></div></div>
+{% endblock %}

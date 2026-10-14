@@ -1,0 +1,22 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>{{c.name}}</h1>
+<div class="grid"><div class="card"><table>
+<tr><th>Location</th><td>{{c.city}}, {{c.state}}</td></tr><tr><th>GSTIN</th><td>{{c.gstin or "-"}}</td></tr>
+<tr><th>Owner</th><td>{{ c.rep.name if c.rep else "-" }}</td></tr>
+<tr><th>Buying cycle</th><td>{% if cyc and cyc.usual_gap_days %}every ~{{ "%g"|format(cyc.usual_gap_days) }} days, last order {{cyc.days_since}} days ago {% if cyc.lapsed %}<span class="tag bad">lapsed</span>{% endif %}{% else %}not enough history{% endif %}</td></tr>
+<tr><th>Other contacts</th><td>{% for ct in c.contacts %}{{ct.name}} {{ct.phone}}<br>{% else %}-{% endfor %}</td></tr></table>
+{% if invite %}<div class="card" style="border-color:#16a34a;margin-top:10px"><b>Portal login created.</b> The activation link has been emailed{% if not settings.email_enabled %} (email not configured, so share it yourself){% endif %}:<br><code style="word-break:break-all">{{invite}}</code></div>{% endif %}
+<h2 style="margin-top:12px">Portal logins</h2><table>{% for u in logins %}<tr><td>{{u.email}}</td><td>{% if u.invite_token %}<span class="tag warn">invited</span>{% elif u.active %}<span class="tag ok">active</span>{% else %}<span class="tag">disabled</span>{% endif %}</td><td class="muted">{{ u.last_login.strftime("%d-%b %H:%M") if u.last_login else "never logged in" }}</td>
+<td>{% if u.active %}<form method="post" action="/staff/portal-users/{{u.id}}/disable" class="inline"><button class="sec">Disable</button></form>{% endif %}</td></tr>{% else %}<tr><td class="muted">No portal login yet.</td></tr>{% endfor %}</table>
+<form method="post" action="/staff/customers/{{c.id}}/invite" class="row" style="margin-top:6px"><input name="email" type="email" placeholder="Buyer's email" required><input name="name" placeholder="Name"><button>Create portal login</button></form>
+<form method="post" action="/staff/customers/{{c.id}}" class="row" style="margin-top:10px">
+<input name="phone" value="{{c.phone}}" placeholder="Phone"><input name="email" value="{{c.email}}" placeholder="Email"><input name="credit_days" type="number" value="{{c.credit_days}}" style="width:90px" title="Approved credit days">
+<input name="segment" value="{{c.segment}}" placeholder="segment"><button class="sec">Save</button></form></div>
+<div class="card"><h2>Open invoices</h2><table><tr><th>Invoice</th><th>Date</th><th>Due</th><th class="n">Outstanding</th></tr>
+{% for i in invs %}<tr><td>{{i.number}}</td><td>{{i.invoice_date}}</td><td>{{i.due_date}} {% if i.due_date < today %}<span class="tag bad">{{ (today - i.due_date).days }}d</span>{% endif %}</td><td class="n">{{i.outstanding|inr}}</td></tr>
+{% else %}<tr><td colspan=4 class="muted">Nothing outstanding</td></tr>{% endfor %}</table></div></div>
+<div class="grid"><div class="card"><h2>Orders</h2><table><tr><th>No.</th><th>Date</th><th>Item</th><th class="n">MT</th><th class="n">Rate</th><th>Status</th></tr>
+{% for o in orders %}<tr><td>{{o.number}}</td><td>{{o.order_date}}</td><td>{{o.item_text}}</td><td class="n">{{o.qty_mt}}</td><td class="n">{{o.rate_per_mt|inr}}</td><td>{{o.status}}</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Tasks</h2><table>{% for t in tasks %}<tr><td>{{t.title}}</td><td><span class="tag">{{t.status}}</span></td></tr>{% else %}<tr><td class="muted">None</td></tr>{% endfor %}</table>
+<h2 style="margin-top:12px">Chats</h2>{% for cv in convs %}<a href="/staff/conversations/{{cv.id}}">{{cv.channel}} · {{cv.external_user}}</a><br>{% else %}<span class="muted">None</span>{% endfor %}</div></div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "portal/base.html" %}{% block body %}
+<div class="page-title"><div><h1>Orders &amp; dispatch</h1><p>Truck, LR, ETA and mill test certificates for every dispatch.</p></div></div>
+{% if not user.customer_id %}<div class="card">Your login isn't linked to a customer account yet, so there are no orders to show. Contact your sales person if you're an existing customer.</div>{% endif %}
+{% for o in orders %}<div class="card"><div class="row" style="justify-content:space-between"><div><b>{{o.number}}</b> · {{o.item_text}} · {{o.qty_mt}} MT{% if o.destination %} · {{o.destination}}{% endif %} <span class="muted">({{ o.order_date.strftime("%d %b %Y") }})</span></div><span class="tag {{ 'ok' if o.status in ('dispatched','delivered') }}">{{ STATUS_TEXT.get(o.status, o.status) }}</span></div>
+{% if o.dispatches %}<table style="margin-top:8px"><tr><th>Dispatched</th><th>Truck</th><th>LR</th><th class="n">MT</th><th>ETA</th><th>Test certificate</th></tr>
+{% for d in o.dispatches %}<tr><td>{{ d.dispatched_at.strftime("%d %b %H:%M") }}</td><td>{{d.truck_no}}</td><td>{{d.lr_no}}</td><td class="n">{{d.qty_mt}}</td><td>{{ d.eta.strftime("%d %b") if d.eta else "" }}{% if d.delivered_at %} <span class="tag ok">delivered</span>{% endif %}</td>
+<td>{% if d.mtc_path %}<a href="/portal/mtc/{{d.id}}">Download MTC</a>{% else %}<span class="muted">to follow</span>{% endif %}</td></tr>{% endfor %}</table>{% endif %}</div>
+{% else %}{% if user.customer_id %}<div class="card muted">No orders yet.</div>{% endif %}{% endfor %}
+{% endblock %}

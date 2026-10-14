@@ -1,0 +1,12 @@
+{% extends "staff/base.html" %}{% block body %}
+<h1>Open orders &amp; dispatch</h1>
+<p class="muted">Logged-in customers see dispatches and test certificates in their portal, and can ask the chat assistant for status, truck and LR details, as soon as you record a dispatch here.</p>
+{% for o in orders %}<div class="card"><div class="row" style="justify-content:space-between"><div><b>{{o.number}}</b> · {{o.customer.name}} · {{o.item_text}} · {{o.qty_mt}} MT · {{o.destination}} <span class="muted">({{o.order_date}})</span></div>
+<form method="post" action="/staff/orders/{{o.id}}/status" class="row"><select name="status">{% for s in ["confirmed","in_production","ready","dispatched","delivered","cancelled"] %}<option {{ 'selected' if s==o.status }}>{{s}}</option>{% endfor %}</select><button class="sec">Update</button></form></div>
+{% if o.dispatches %}<table style="margin-top:8px"><tr><th>Dispatched</th><th>Truck</th><th>LR</th><th class="n">MT</th><th>ETA</th><th>MTC</th></tr>{% for d in o.dispatches %}<tr><td>{{d.dispatched_at.strftime("%d-%b %H:%M")}}</td><td>{{d.truck_no}}</td><td>{{d.lr_no}}</td><td class="n">{{d.qty_mt}}</td><td>{{d.eta or ""}}</td><td>{{ "yes" if d.mtc_path else "-" }}</td></tr>{% endfor %}</table>{% endif %}
+<details style="margin-top:8px"><summary>Record dispatch</summary><form method="post" action="/staff/orders/{{o.id}}/dispatch" enctype="multipart/form-data" class="row" style="margin-top:8px">
+<input name="truck_no" placeholder="Truck no." required><input name="driver_phone" placeholder="Driver phone"><input name="lr_no" placeholder="LR no.">
+<input name="qty_mt" type="number" step="0.01" placeholder="MT" required style="width:90px"><input name="eta" type="date">
+<label>MTC PDF <input type="file" name="mtc" accept="application/pdf"></label><label><input type="checkbox" name="notify" value="true" checked> Notify the customer (portal inbox + email)</label><button>Save</button></form></details></div>
+{% else %}<div class="card muted">No open orders.</div>{% endfor %}
+{% endblock %}
